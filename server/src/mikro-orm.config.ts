@@ -1,7 +1,6 @@
 import { MikroORM } from "@mikro-orm/core";
 import path from "path";
 import { __PROD__ } from "./constants";
-import { Post } from "./entities/Post";
 
 export default {
   dbName: "lereddit",
@@ -13,5 +12,5 @@ export default {
     pattern: /^[\w-]+\d+\.[tj]s$/, // regex pattern for the migration files
   },
   debug: !__PROD__,
-  entities: [Post],
+  entities: [__dirname + "/entities/**/*.[tj]s"],
 } as Parameters<typeof MikroORM.init>[0];

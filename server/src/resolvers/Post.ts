@@ -51,5 +51,8 @@ export class PostResolver {
     try {
       await em.nativeDelete(Post, { id });
       return true;
+    } catch (e) {
+      return false;
+    }
   }
 }
