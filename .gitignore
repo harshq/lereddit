@@ -1,0 +1,5 @@
+#build directory
+server/dist
+
+# Dependency directories
+node_modules/
