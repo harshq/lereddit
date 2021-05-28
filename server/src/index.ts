@@ -19,6 +19,7 @@ const main = async () => {
       resolvers: [__dirname + "/resolvers/**/*.js"],
       validate: false,
     }),
+    debug: !__PROD__,
   });
 
   apolloServer.applyMiddleware({ app });
