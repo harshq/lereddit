@@ -1,13 +1,18 @@
 import { PrimaryKey, Entity, Property } from "@mikro-orm/core";
+import { ObjectType, Field } from "type-graphql";
 
+@ObjectType()
 @Entity()
 export class BaseEntity {
+  @Field()
   @PrimaryKey()
   id!: number;
 
-  @Property({ type: 'date' })
+  @Field(() => String)
+  @Property({ type: "date" })
   createdAt = new Date();
 
-  @Property({ type: 'date', onUpdate: () => new Date() })
+  @Field(() => String)
+  @Property({ type: "date", onUpdate: () => new Date() })
   updatedAt = new Date();
 }

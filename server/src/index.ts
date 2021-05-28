@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { MikroORM } from "@mikro-orm/core";
 import { __PROD__ } from "./constants";
 
@@ -5,7 +6,6 @@ import microConfig from "./mikro-orm.config";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
-import { PostResolver } from "./resolvers/Post";
 
 const main = async () => {
   const orm = await MikroORM.init(microConfig);
@@ -14,17 +14,12 @@ const main = async () => {
   const app = express();
 
   const apolloServer = new ApolloServer({
-    context: { em: orm.em },
+    context: ({ req, res }) => ({ em: orm.em, req, res }),
     schema: await buildSchema({
-      resolvers: [PostResolver],
+      resolvers: [__dirname + "/resolvers/**/*.js"],
       validate: false,
     }),
   });
-
-  // const post = await orm.em.create(Post, { title: "My first post!" });
-  // await orm.em.persistAndFlush(post);
-  // const posts = await orm.em.find(Post, {});
-  // console.log(posts);
 
   apolloServer.applyMiddleware({ app });
 
