@@ -1,9 +1,9 @@
 import { PrimaryKey, Entity, Property } from "@mikro-orm/core";
 import { ObjectType, Field } from "type-graphql";
 
-@ObjectType()
+@ObjectType({ isAbstract: true })
 @Entity()
-export class BaseEntity {
+export abstract class BaseEntity {
   @Field()
   @PrimaryKey()
   id!: number;
