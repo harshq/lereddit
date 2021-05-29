@@ -1,6 +1,9 @@
 import "reflect-metadata";
 import { MikroORM } from "@mikro-orm/core";
 import { __PROD__ } from "./constants";
+import session from "express-session";
+import redis from "redis";
+import connectRedis from "connect-redis";
 
 import microConfig from "./mikro-orm.config";
 import express from "express";
@@ -11,7 +14,18 @@ const main = async () => {
   const orm = await MikroORM.init(microConfig);
   await orm.getMigrator().up();
 
+  const RedisStore = connectRedis(session);
+  const redisClient = redis.createClient(); 
+
   const app = express();
+
+  app.use(session({
+    store: new RedisStore({
+      client: redisClient
+    }),
+    secret: "reaaaaaalylongsecret",
+    resave: false
+  }))
 
   const apolloServer = new ApolloServer({
     context: ({ req, res }) => ({ em: orm.em, req, res }),

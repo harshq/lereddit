@@ -35,6 +35,7 @@ export class UserResolver {
       await em.persistAndFlush(user);
       return user;
     } catch (error) {
+        console.error(error);
       return null;
     }
   }
