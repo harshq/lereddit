@@ -1,13 +1,36 @@
 import { User } from "../entities/User";
 import { Context } from "../types/context";
-import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  Field,
+  Mutation,
+  ObjectType,
+  Query,
+  Resolver,
+} from "type-graphql";
 import argon2 from "argon2";
+import { createAccessToken, createRefreshToken } from "../utils/jwt";
+
+@ObjectType()
+class LoginResponse {
+  @Field(() => User)
+  user: User;
+
+  @Field()
+  accessToken: string;
+
+  @Field()
+  refreshToken: string;
+}
 
 @Resolver()
 export class UserResolver {
+  @Authorized()
   @Query(() => User, { nullable: true })
   async me(@Ctx() { req, em }: Context) {
-    const userId = req.session.userId;
+    const userId = req.user && req.user.id;
     if (!userId) {
       return null;
     }
@@ -50,18 +73,23 @@ export class UserResolver {
     }
   }
 
-  @Mutation(() => User, { nullable: true })
+  @Mutation(() => LoginResponse, { nullable: true })
   async login(
     @Arg("username") username: string,
     @Arg("password") password: string,
-    @Ctx() { em, req }: Context
-  ): Promise<User | null> {
+    @Ctx() { em }: Context
+  ): Promise<LoginResponse | null> {
     try {
       const user = await em.findOneOrFail(User, { username });
       const matchPasswords = await argon2.verify(user.password, password);
       if (matchPasswords) {
-        req.session.userId = user.id;
-        return user;
+        const accessToken = createAccessToken(user);
+        const refreshToken = createRefreshToken(user);
+        return {
+          user,
+          accessToken,
+          refreshToken,
+        };
       } else {
         throw Error();
       }
