@@ -83,8 +83,8 @@ export class UserResolver {
       const user = await em.findOneOrFail(User, { username });
       const matchPasswords = await argon2.verify(user.password, password);
       if (matchPasswords) {
-        const accessToken = createAccessToken(user);
-        const refreshToken = createRefreshToken(user);
+        const accessToken = createAccessToken({ id: user.id });
+        const refreshToken = createRefreshToken({ id: user.id });
         return {
           user,
           accessToken,
