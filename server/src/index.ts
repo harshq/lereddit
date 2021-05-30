@@ -20,11 +20,19 @@ const main = async () => {
   const app = express();
 
   app.use(session({
+    name: 'qid',
     store: new RedisStore({
       client: redisClient
     }),
     secret: "reaaaaaalylongsecret",
-    resave: false
+    resave: false,
+    cookie: {
+      secure: __PROD__,
+      maxAge: 60 * 60 * 24 * 30 * 5, // 5 years
+      httpOnly: true,
+      sameSite: 'lax'
+    },
+    saveUninitialized: false
   }))
 
   const apolloServer = new ApolloServer({

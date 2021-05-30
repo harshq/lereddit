@@ -6,6 +6,16 @@ import argon2 from "argon2";
 @Resolver()
 export class UserResolver {
   @Query(() => User, { nullable: true })
+  async me(@Ctx() { req, em }: Context) {
+    const userId = req.session.userId;
+    if (!userId) {
+      return null;
+    }
+
+    return em.findOne(User, { id: userId });
+  }
+
+  @Query(() => User, { nullable: true })
   async user(
     @Arg("userId") id: number,
     @Ctx() { em }: Context
@@ -35,7 +45,7 @@ export class UserResolver {
       await em.persistAndFlush(user);
       return user;
     } catch (error) {
-        console.error(error);
+      console.error(error);
       return null;
     }
   }
@@ -44,17 +54,17 @@ export class UserResolver {
   async login(
     @Arg("username") username: string,
     @Arg("password") password: string,
-    @Ctx() { em }: Context
+    @Ctx() { em, req }: Context
   ): Promise<User | null> {
     try {
       const user = await em.findOneOrFail(User, { username });
       const matchPasswords = await argon2.verify(user.password, password);
-      if(matchPasswords) {
+      if (matchPasswords) {
+        req.session.userId = user.id;
         return user;
       } else {
-          throw Error();
+        throw Error();
       }
-      
     } catch (error) {
       return null;
     }
