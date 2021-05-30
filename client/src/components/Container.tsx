@@ -1,19 +1,28 @@
-import { Flex, useColorMode, FlexProps } from '@chakra-ui/react'
+import { Flex, useColorMode, FlexProps, Box } from "@chakra-ui/react";
 
-export const Container = (props: FlexProps) => {
-  const { colorMode } = useColorMode()
+export const Container = (
+  props: FlexProps & { varient?: "small" | "normal" }
+) => {
+  const { colorMode } = useColorMode();
 
-  const bgColor = { light: 'gray.50', dark: 'gray.900' }
-
-  const color = { light: 'black', dark: 'white' }
+  const color = { light: "black", dark: "white" };
   return (
-    <Flex
-      direction="column"
-      alignItems="center"
-      justifyContent="flex-start"
-      bg={bgColor[colorMode]}
-      color={color[colorMode]}
-      {...props}
-    />
-  )
-}
+    <Flex direction="column" justifyContent="center" alignItems="center">
+      <Flex
+        width={getWidth(props.varient)}
+        color={color[colorMode]}
+        {...props}
+      />
+    </Flex>
+  );
+};
+
+const getWidth = (v: string | undefined) => {
+  switch (v) {
+    case "small":
+      return "320px";
+
+    default:
+      return "700px";
+  }
+};
