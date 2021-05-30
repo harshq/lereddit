@@ -9,12 +9,17 @@ import microConfig from "./mikro-orm.config";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
+import cors from 'cors';
 
 const main = async () => {
   const orm = await MikroORM.init(microConfig);
   await orm.getMigrator().up();
 
   const app = express();
+
+  app.use(cors({
+    origin: "http://localhost:3000"
+  }))
 
   app.use((req, res, next) => {
     const nextFn = () => next();
@@ -35,7 +40,7 @@ const main = async () => {
     debug: !__PROD__,
   });
 
-  apolloServer.applyMiddleware({ app });
+  apolloServer.applyMiddleware({ app, cors: false });
 
   app.get("/ping", (_, res) => res.send({ server: "pong" }));
 
